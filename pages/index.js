@@ -35,7 +35,7 @@ export default function Home() {
         <Promo />
         <FAQ />
         <Newsletter />
-        <Contact />
+       
       </main>
       <Footer />
     </>
