@@ -1,70 +1,93 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { products } from "../data/products";
 
-export default function ProductDetails() {
+export default function ProductDetails({ product }) {
   const [selectedSize, setSelectedSize] = useState("M");
+  const [mainImage, setMainImage] = useState(product.image);
 
-  const product = {
-    name: "Aurora Silk Gown",
-    price: "12,800",
-    description:
-      "Crafted from premium silk with timeless elegance and effortless sophistication. Designed for the modern woman who values luxury and comfort.",
-    images: [
-      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1000&q=80",
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=80",
-      "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1000&q=80",
-      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=80",
-    ],
-  };
+  useEffect(() => {
+    setMainImage(product.image);
+    setSelectedSize("M");
+  }, [product]);
 
-  const [mainImage, setMainImage] = useState(product.images[0]);
+  const addToCart = () => {
+  const cart =
+    JSON.parse(localStorage.getItem("cart")) || [];
+
+  const existingProduct = cart.find(
+    (item) =>
+      item.id === product.id &&
+      item.size === selectedSize
+  );
+
+  if (existingProduct) {
+    existingProduct.quantity += 1;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      image: product.image,
+      size: selectedSize,
+      quantity: 1,
+    });
+  }
+
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
+
+  //alert("Added To Cart");
+};
+
+  const relatedProducts = products
+    .filter(
+      (item) =>
+        item.category === product.category &&
+        item.id !== product.id
+    )
+    .slice(0, 4);
 
   return (
     <section className="bg-[#f5f1ec] py-20">
       <div className="max-w-7xl mx-auto px-6">
 
+        {/* Product Section */}
         <div className="grid lg:grid-cols-2 gap-16">
 
-          {/* Product Images */}
+          {/* Product Image */}
           <div>
             <img
               src={mainImage}
               alt={product.name}
               className="w-full h-[700px] object-cover"
             />
-
-            <div className="grid grid-cols-4 gap-4 mt-4">
-              {product.images.map((img, index) => (
-                <img
-                  key={index}
-                  src={img}
-                  alt={`Thumbnail ${index + 1}`}
-                  onClick={() => setMainImage(img)}
-                  className="cursor-pointer h-28 w-full object-cover border border-gray-200 hover:border-black transition"
-                />
-              ))}
-            </div>
           </div>
 
-          {/* Product Information */}
+          {/* Product Info */}
           <div className="pt-6">
 
             <p className="uppercase tracking-[4px] text-[#c9a26d] mb-3">
-              New Arrival
+              {product.category}
             </p>
 
-            <h1 className="text-4xl md:text-5xl font-serif text-black leading-tight">
+            <h1 className="text-5xl font-serif text-black">
               {product.name}
             </h1>
 
-            <p className="text-2xl md:text-3xl mt-6 text-[#c9a26d] font-medium">
-              ₹{product.price}
+            <p className="text-3xl mt-6 text-[#c9a26d] font-medium">
+              ₹{product.price.toLocaleString()}
             </p>
 
             <p className="mt-8 text-gray-600 leading-8">
-              {product.description}
+              {product.description ||
+                "Crafted with timeless elegance and modern sophistication."}
             </p>
 
-            {/* Size Selection */}
+            {/* Size */}
             <div className="mt-10">
               <h3 className="font-medium mb-4">
                 Select Size
@@ -75,10 +98,10 @@ export default function ProductDetails() {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`px-5 py-3 border border-gray-300 transition-all duration-300 ${
+                    className={`px-5 py-3 border transition ${
                       selectedSize === size
                         ? "bg-black text-white"
-                        : "bg-white hover:border-black"
+                        : "bg-white"
                     }`}
                   >
                     {size}
@@ -97,37 +120,42 @@ export default function ProductDetails() {
                 type="number"
                 defaultValue={1}
                 min={1}
-                className="border border-gray-300 px-4 py-3 w-24 bg-white"
+                className="border px-4 py-3 w-24 bg-white"
               />
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-wrap gap-4 mt-10">
+            <div className="flex gap-4 mt-10 flex-wrap">
 
-              <button className="bg-black text-white px-10 py-4 tracking-[2px] hover:opacity-90 transition">
-                ADD TO CART
-              </button>
+             
 
-              <button className="border border-black px-10 py-4 tracking-[2px] hover:bg-black hover:text-white transition">
+             <button
+  onClick={addToCart}
+  className="bg-black text-white px-10 py-4 tracking-wider"
+>
+  ADD TO CART
+</button>
+
+              <button className="border border-black px-10 py-4 tracking-wider hover:bg-black hover:text-white transition">
                 BUY NOW
               </button>
 
             </div>
 
-            {/* Product Details */}
-            <div className="mt-12 border-t border-gray-300 pt-8 space-y-6">
+            {/* Extra Info */}
+            <div className="mt-12 border-t pt-8 space-y-4">
 
               <div>
-                <h4 className="font-medium text-black">
-                  Fabric
+                <h4 className="font-medium">
+                  Category
                 </h4>
                 <p className="text-gray-600">
-                  Premium Silk Blend
+                  {product.category}
                 </p>
               </div>
 
               <div>
-                <h4 className="font-medium text-black">
+                <h4 className="font-medium">
                   Shipping
                 </h4>
                 <p className="text-gray-600">
@@ -136,7 +164,7 @@ export default function ProductDetails() {
               </div>
 
               <div>
-                <h4 className="font-medium text-black">
+                <h4 className="font-medium">
                   Returns
                 </h4>
                 <p className="text-gray-600">
@@ -150,41 +178,52 @@ export default function ProductDetails() {
 
         </div>
 
-        {/* Related Products */}
+        {/* Recommended Products */}
         <div className="mt-28">
 
-          <div className="text-center mb-14">
+          <div className="text-center mb-12">
             <p className="uppercase tracking-[4px] text-[#c9a26d] mb-3">
               You May Also Like
             </p>
 
-            <h2 className="font-serif text-4xl text-black">
-              Related Products
+            <h2 className="text-4xl font-serif">
+              Recommended Products
             </h2>
           </div>
 
           <div className="grid md:grid-cols-4 gap-8">
 
-            {product.images.map((img, index) => (
-              <div key={index} className="group cursor-pointer">
+            {relatedProducts.map((item) => (
+              <Link
+                key={item.id}
+                href={`/product/${item.id}`}
+              >
+                <div className="group cursor-pointer">
 
-                <div className="overflow-hidden">
-                  <img
-                    src={img}
-                    alt=""
-                    className="w-full h-80 object-cover group-hover:scale-105 transition duration-700"
-                  />
+                  <div className="overflow-hidden bg-white">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-80 object-cover group-hover:scale-105 transition duration-700"
+                    />
+                  </div>
+
+                  <div className="mt-4">
+                    <h3 className="font-serif text-xl">
+                      {item.name}
+                    </h3>
+
+                    <p className="text-gray-500 mt-1">
+                      {item.category}
+                    </p>
+
+                    <p className="mt-2 font-medium">
+                      ₹{item.price.toLocaleString()}
+                    </p>
+                  </div>
+
                 </div>
-
-                <h3 className="mt-4 font-serif text-xl">
-                  Vanya Collection
-                </h3>
-
-                <p className="text-gray-600 mt-2">
-                  ₹8,999
-                </p>
-
-              </div>
+              </Link>
             ))}
 
           </div>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -5,6 +6,8 @@ import ProductFilters from "../components/ProductFilters";
 import ProductGrid from "../components/ProductGrid";
 
 export default function Shop() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
   return (
     <>
       <Head>
@@ -14,7 +17,6 @@ export default function Shop() {
       <Header />
 
       <main className="bg-[#f5f1ec] min-h-screen">
-
         <section className="py-24 text-center">
           <p className="tracking-[4px] text-[#c5a47e] uppercase mb-4">
             Collection
@@ -25,15 +27,16 @@ export default function Shop() {
           </h1>
 
           <p className="mt-6 text-gray-600 max-w-2xl mx-auto">
-            Discover timeless pieces crafted for the
-            modern woman.
+            Discover timeless pieces crafted for the modern woman.
           </p>
         </section>
 
-        <ProductFilters />
+        <ProductFilters
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
 
-        <ProductGrid />
-
+        <ProductGrid selectedCategory={selectedCategory} />
       </main>
 
       <Footer />
