@@ -5,13 +5,15 @@ import { products } from "../data/products";
 export default function ProductDetails({ product }) {
   const [selectedSize, setSelectedSize] = useState("M");
   const [mainImage, setMainImage] = useState(product.image);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     setMainImage(product.image);
     setSelectedSize("M");
+     setQuantity(1);
   }, [product]);
 
-  const addToCart = () => {
+ const addToCart = () => {
   const cart =
     JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -22,25 +24,28 @@ export default function ProductDetails({ product }) {
   );
 
   if (existingProduct) {
-    existingProduct.quantity += 1;
-  } else {
-    cart.push({
-      id: product.id,
-      name: product.name,
-      category: product.category,
-      price: product.price,
-      image: product.image,
-      size: selectedSize,
-      quantity: 1,
-    });
+    alert("Product is already in your cart.");
+    return;
   }
+
+  cart.push({
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    price: product.price,
+    image: product.image,
+    size: selectedSize,
+     quantity: quantity,
+  });
 
   localStorage.setItem(
     "cart",
     JSON.stringify(cart)
   );
 
-  //alert("Added To Cart");
+  window.dispatchEvent(new Event("cartUpdated"));
+
+  alert("Product added to cart.");
 };
 
   const relatedProducts = products
@@ -117,11 +122,14 @@ export default function ProductDetails({ product }) {
               </h3>
 
               <input
-                type="number"
-                defaultValue={1}
-                min={1}
-                className="border px-4 py-3 w-24 bg-white"
-              />
+                  type="number"
+                  value={quantity}
+                  min={1}
+                  onChange={(e) =>
+                    setQuantity(Number(e.target.value))
+                  }
+                  className="border px-4 py-3 w-24 bg-white"
+                />
             </div>
 
             {/* Buttons */}

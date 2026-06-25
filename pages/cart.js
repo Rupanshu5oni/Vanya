@@ -25,7 +25,28 @@ export default function Cart() {
       "cart",
       JSON.stringify(updatedCart)
     );
+
+     window.dispatchEvent(new Event("cartUpdated"));
   };
+
+  const updateQuantity = (id, qty) => {
+  if (qty < 1) return;
+
+  const updatedCart = cartItems.map((item) =>
+    item.id === id
+      ? { ...item, quantity: qty }
+      : item
+  );
+
+  setCartItems(updatedCart);
+
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(updatedCart)
+  );
+
+  window.dispatchEvent(new Event("cartUpdated"));
+};
 
   const subtotal = cartItems.reduce(
     (sum, item) =>
@@ -117,9 +138,31 @@ export default function Cart() {
                       Size: {item.size}
                     </p>
 
-                    <p className="mt-2 text-gray-600">
-                      Qty: {item.quantity}
-                    </p>
+                    <div className="flex items-center gap-3 mt-3">
+
+                      <button
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity - 1)
+                        }
+                        className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white"
+                      >
+                        -
+                      </button>
+
+                      <span className="w-8 text-center">
+                        {item.quantity}
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity + 1)
+                        }
+                        className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white"
+                      >
+                        +
+                      </button>
+
+                    </div>
 
                     <p className="mt-4 text-lg font-medium">
                       ₹{item.price.toLocaleString()}
